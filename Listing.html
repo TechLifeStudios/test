@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listings Website</title>
+    <style>
+        /* Add your CSS styles here */
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <button id="add-listing-btn">Add Listing</button>
+        <div id="dynamic-content"></div>
+    </div>
+
+    <!-- Contact Form Overlay -->
+    <div class="overlay" id="overlay">
+        <div class="contact-form">
+            <h2>Contact Us</h2>
+            <form id="listing-form">
+                <label for="listing-title">Listing Title:</label>
+                <input type="text" id="listing-title" name="listing-title" required><br><br>
+                <label for="listing-description">Listing Description:</label>
+                <textarea id="listing-description" name="listing-description" required></textarea><br><br>
+                <button type="submit">Add Listing</button>
+            </form>
+            <button id="close-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const dynamicContent = document.getElementById('dynamic-content');
+        const overlay = document.getElementById('overlay');
+        const mainContent = document.getElementById('main-content');
+        const listingForm = document.getElementById('listing-form');
+
+        // Load existing listings from local storage
+        const listings = JSON.parse(localStorage.getItem('listings')) || [];
+
+        // Function to save listings to local storage
+        const saveListingsToLocalStorage = () => {
+            localStorage.setItem('listings', JSON.stringify(listings));
+        };
+
+        // Function to render existing listings on the page
+        const renderListings = () => {
+            dynamicContent.innerHTML = '';
+            listings.forEach(listing => {
+                const listingElement = document.createElement('div');
+                listingElement.classList.add('listing');
+                listingElement.innerHTML = `
+                    <h3>${listing.title}</h3>
+                    <p>${listing.description}</p>
+                    <button class="buy-btn">Buy</button>
+                `;
+                dynamicContent.appendChild(listingElement);
+            });
+        };
+
+        // Render existing listings on page load
+        renderListings();
+
+        document.getElementById('add-listing-btn').addEventListener('click', () => {
+            overlay.style.display = 'block';
+            overlay.style.opacity = '1';
+            mainContent.classList.add('blur');
+        });
+
+        document.getElementById('close-btn').addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+            mainContent.classList.remove('blur');
+        });
+
+        listingForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const title = document.getElementById('listing-title').value;
+            const description = document.getElementById('listing-description').value;
+
+            // Create a new listing object
+            const newListing = { title, description };
+            listings.push(newListing);
+
+            // Save listings to local storage and re-render listings
+            saveListingsToLocalStorage();
+            renderListings();
+
+            // Clear the form fields
+            document.getElementById('listing-title').value = '';
+            document.getElementById('listing-description').value = '';
+
+            // Close the overlay
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+            mainContent.classList.remove('blur');
+        });
+    </script>
+</body>
+</html>
